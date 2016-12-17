@@ -107,16 +107,17 @@ function refreshTrackList() {
 refreshTrackList();
 
 socket.on('trackListRefresh', function(trackList){
-	console.log(trackList);
+	// console.log(trackList);
 });
 
 
-$("li.songs").on('click',function(){
-	let song = $(this).text();
-	  $("#jquery_jplayer_1").jPlayer("setMedia", {
-	        mp3: "/song/"+song
-	      }).jPlayer("play");
-});
+// $("li.songs").on('click',function(){
+// 	console.log(true)
+// 	let song = $(this).text();
+// 	  $("#jquery_jplayer_1").jPlayer("setMedia", {
+// 	        mp3: "/song/"+song
+// 	      }).jPlayer("play");
+// });
 
 
 	// 	$.ajax({
@@ -130,11 +131,43 @@ $("li.songs").on('click',function(){
 	// 	  .error (( err )=> {
 	// 	  	console.log(err);
 	// 	});
+
+let tracks=["BladeABCampaign.mp3",
+			"CampainMusic02.mp3",
+			"COMBAT01.MP3",
+			"COMBAT02.MP3",
+			"COMBAT04.MP3",
+			"CoveTown.mp3",
+			"ElemTown.mp3",
+			"MAINMENU.MP3",
+			"SWAMP.MP3"];
+
+class Track extends React.Component {
+	render () {
+	    return <li className="songs">{this.props.trackName}</li>
+	};
+	componentDidMount () {
+		$(ReactDOM.findDOMNode(this)).on('click', function(){
+		let song = $(this).text();
+		  $("#jquery_jplayer_1").jPlayer("setMedia", {
+		        mp3: "/song/"+song
+		      }).jPlayer("play");
+		});
+	}
+};
+
 class TrackList extends React.Component {
 	render () {
 	    return (
 	      <div className="app">
 	        <h4>Track list:</h4>
+	        <ul>
+	        	{
+	        		tracks.map((track,id)=>{
+	        			return <Track key={id} trackName={track} />
+	        		})
+	        	}
+	        </ul>
 	      </div>
 	    );
 	};
