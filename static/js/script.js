@@ -214,24 +214,58 @@ class Server extends React.Component {
 	    );
 	};
 };
+class Voute extends React.Component {
+  	constructor() {
+    super();
+	    this.state = {
+	      vouteAvaible: false
+	    };
+  	};
+  	componentDidUpdate() {
+  		if(this.props.nowPlaying === "Nothing")
+			return;
+  		socket.emit('vouteAvaible');
+  		socket.on('vouteAvaible', this._updVouteStatus.bind(this));
+  	};
+  	_updVouteStatus (check) {
+  		if(check && !this.state.vouteAvaible)
+  			this.setState({vouteAvaible:true});
+  	}
+  	_voteBadSong() {
+  		socket.emit('badSong');
+  	}
+  	render () {
+  		if(this.props.nowPlaying === "Nothing")
+  			return null;
+  		if(!this.state.vouteAvaible)
+  			return ( <h5>Already vouted</h5> );
+  		return ( <button onClick={this._voteBadSong}>BAD song!</button> );
+  	}
+};
+class SongRating extends React.Component {
+	render () {
+		if(this.props.songRating === null)
+			return null;
+		return (
+			<h5>Raiting: {this.props.songRating}</h5>
+		)
+	}
+}
 class Client extends React.Component {
 	constructor() {
 	    super();
 	    this.state = {
 	      nowPlaying: "",
+	      songRating: "",
 	      serverNow: ""
 	    };
   	};
 	componentDidMount () {
 		socket.emit('serverStatus');
-		socket.on('nowPlaying', this._updNowPlaying.bind(this));
-		socket.on('serverNow', this._updServer.bind(this));
+		socket.on('serverStatus', this._updServerStatus.bind(this));
 	};
-	_updNowPlaying(song) {
-		this.setState({nowPlaying:song});
-	};
-	_updServer(id) {
-		this.setState({serverNow:id});
+	_updServerStatus(status) {
+		this.setState({nowPlaying:status.currentSong, songRating:status.songRating, serverNow:status.serverNow});
 	};
 	_iWantBeServer () {
 		if(this.state.serverNow === "nobody")
@@ -243,6 +277,8 @@ class Client extends React.Component {
 	    		<h4 onClick={this._iWantBeServer.bind(this)}>Current server: {this.state.serverNow}</h4>
 	    		<h5>Now Playing:</h5>
 	    		<h4>{this.state.nowPlaying}</h4>
+	    		<SongRating nowPlaying={this.state.nowPlaying} songRating={this.state.songRating} />
+	    		<Voute nowPlaying={this.state.nowPlaying} />
 	    	</div>
 	    );
 	};
@@ -263,11 +299,7 @@ class App extends React.Component {
 	render () {
 		if(this.state.server)
 			return (<Server />);
-		return (
-			<div>
-				<Client />
-			</div>
-		);
+		return (<Client />);
 	};
 };
 

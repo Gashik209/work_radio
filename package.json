@@ -9,10 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel": "5.8.21",
     "body-parser": "^1.15.2",
     "ejs": "^2.5.5",
     "express": "^4.14.0",
-    "socket.io": "^1.7.2",
-    "babel":"5.8.21"
+    "nedb": "^1.8.0",
+    "socket.io": "^1.7.2"
   }
 }
