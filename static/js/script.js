@@ -188,7 +188,6 @@ class TrackList extends React.Component {
 	    return (
 	      <div className="app">
 	        <h4>Track list:</h4>
-	        {
 		        <ul>
 		        	{
 		        		this.state.trackList.map((track,id)=>{
@@ -196,7 +195,6 @@ class TrackList extends React.Component {
 		        		})
 		        	}
 		        </ul>
-	        }
 	      </div>
 	    );
 	};
@@ -221,34 +219,36 @@ class Voute extends React.Component {
 	      vouteAvaible: false
 	    };
   	};
+	componentDidMount () {
+		socket.on('vouteAvaible', this._updVouteStatus.bind(this));
+	};
   	componentDidUpdate() {
   		if(this.props.nowPlaying === "Nothing")
 			return;
+		console.log(this.props.nowPlaying)
   		socket.emit('vouteAvaible');
-  		socket.on('vouteAvaible', this._updVouteStatus.bind(this));
   	};
   	_updVouteStatus (check) {
-  		if(check && !this.state.vouteAvaible)
-  			this.setState({vouteAvaible:true});
+  		console.log("vouteAvaible " + check)
+  		if(this.state.vouteAvaible !== check)
+  			this.setState({vouteAvaible:check});
   	}
-  	_voteBadSong() {
-  		socket.emit('badSong');
+  	_voteSong() {
+  		socket.emit('voteSong');
   	}
   	render () {
   		if(this.props.nowPlaying === "Nothing")
-  			return null;
-  		if(!this.state.vouteAvaible)
-  			return ( <h5>Already vouted</h5> );
-  		return ( <button onClick={this._voteBadSong}>BAD song!</button> );
+			return null;
+  		if(this.state.vouteAvaible)
+  			return ( <button onClick={this._voteSong}>BAD song!</button> );
+  		return ( <h5>Already vouted</h5> );
   	}
 };
 class SongRating extends React.Component {
 	render () {
-		if(this.props.songRating === null)
+		if(this.props.songRating === false)
 			return null;
-		return (
-			<h5>Raiting: {this.props.songRating}</h5>
-		)
+		return <h5>Raiting: {this.props.songRating}</h5>
 	}
 }
 class Client extends React.Component {
@@ -265,19 +265,18 @@ class Client extends React.Component {
 		socket.on('serverStatus', this._updServerStatus.bind(this));
 	};
 	_updServerStatus(status) {
-		this.setState({nowPlaying:status.currentSong, songRating:status.songRating, serverNow:status.serverNow});
+		this.setState({nowPlaying:status.currentSong ? status.currentSong : "Nothing", songRating:status.songRating, serverNow:status.serverNow ? status.serverNow : "Nobody"});
 	};
 	_iWantBeServer () {
-		if(this.state.serverNow === "nobody")
+		if(this.state.serverNow)
 			socket.emit('iWantBeServer');
 	};
 	render () {
 	    return (
 	    	<div>
 	    		<h4 onClick={this._iWantBeServer.bind(this)}>Current server: {this.state.serverNow}</h4>
-	    		<h5>Now Playing:</h5>
-	    		<h4>{this.state.nowPlaying}</h4>
-	    		<SongRating nowPlaying={this.state.nowPlaying} songRating={this.state.songRating} />
+	    		<h5>Now Playing: {this.state.nowPlaying} </h5>
+	    		<SongRating songRating={this.state.songRating} />
 	    		<Voute nowPlaying={this.state.nowPlaying} />
 	    	</div>
 	    );
@@ -294,7 +293,7 @@ class App extends React.Component {
   		socket.on('iAmServer', this._getServer.bind(this));
   	};
   	_getServer () {
-  		this.setState({server: true})
+  		 this.setState({server: true});
   	};
 	render () {
 		if(this.state.server)
