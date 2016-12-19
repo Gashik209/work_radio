@@ -219,19 +219,18 @@ class Voute extends React.Component {
 	      vouteAvaible: false
 	    };
   	};
-	componentDidMount () {
+	componentWillMount() {
 		socket.on('vouteAvaible', this._updVouteStatus.bind(this));
 	};
   	componentDidUpdate() {
   		if(this.props.nowPlaying === "Nothing")
 			return;
-		console.log(this.props.nowPlaying)
   		socket.emit('vouteAvaible');
   	};
   	_updVouteStatus (check) {
-  		console.log("vouteAvaible " + check)
+  		console.log(this.props.nowPlaying + " vouteAvaible " + check)
   		if(this.state.vouteAvaible !== check)
-  			this.setState({vouteAvaible:check});
+  			this.setState({vouteAvaible:check});//after change state on opponent value - double rending!
   	}
   	_voteSong() {
   		socket.emit('voteSong');
@@ -260,10 +259,10 @@ class Client extends React.Component {
 	      serverNow: ""
 	    };
   	};
-	componentDidMount () {
-		socket.emit('serverStatus');
-		socket.on('serverStatus', this._updServerStatus.bind(this));
-	};
+  	componentWillMount() {
+  		socket.emit('serverStatus');
+  		socket.on('serverStatus', this._updServerStatus.bind(this));
+  	}
 	_updServerStatus(status) {
 		this.setState({nowPlaying:status.currentSong ? status.currentSong : "Nothing", songRating:status.songRating, serverNow:status.serverNow ? status.serverNow : "Nobody"});
 	};

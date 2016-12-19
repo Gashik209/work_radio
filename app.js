@@ -154,9 +154,7 @@ app.get('/favicon.ico', (req, res)=> {
 
 app.get('/song/:id', (req, res)=>{
 	if(req.ip !== workRadio.server) {
-		if(workRadio.server === "::1" && req.ip === "::ffff:127.0.0.1")
-			console.log(req.ip)
-		else {
+		if(!workRadio.server === "::1" && !req.ip === "::ffff:127.0.0.1") {
 			console.log("access denied",req.ip,workRadio.server);
 			return res.end();
 		}
